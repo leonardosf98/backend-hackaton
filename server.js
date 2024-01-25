@@ -29,7 +29,7 @@ app.post("/register", async (req, res) => {
     const { username, email, password, name, surname } = req.body;
     await connection
       .promise()
-      .query("INSERT INTO users (usersname, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
+      .query("INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
         username,
         email,
         password,
@@ -45,7 +45,7 @@ app.post("/register", async (req, res) => {
 
 app.post("/user", async (req, res)=>{
   try{
-    const id = req.body;
+    const id = req.body.id;
     const [userToFind] = await connection.promise().query("SELECT name, surname, email FROM users WHERE id = ?", [id]);
     if(userToFind.length > 0){
       const {name, surname, email} = userToFind[0];
@@ -56,10 +56,9 @@ app.post("/user", async (req, res)=>{
   }catch(error){
     console.log(error)
     res.status(500).json({message: "Erro interno do servidor"})
-
   }
+});
 
-})
 app.listen(port, () => {
   console.log(`Servidor backend rodando em http://localhost:${port}`);
 });
