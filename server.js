@@ -32,13 +32,6 @@ app.post("/register", async (req, res) => {
   try {
     const { username, email, password, name, surname } = req.body;
     const cryptoPass = await bcrypt.hash(password, saltRounds);
-    //   if(err){  
-    //     res.status(500).json({message:"Erro ao gerar hash"})
-    //   } else {
-    //     return hash;
-    //   }
-    // })
-    console.log(cryptoPass);
     await connection
       .promise()
       .query("INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
