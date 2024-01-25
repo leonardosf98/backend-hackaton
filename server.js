@@ -53,6 +53,24 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ message: "Erro ao registrar usuário" });
   }
 });
+
+app.post("/user", async (req, res)=>{
+  try{
+    const id = req.body;
+    const [userToFind] = await connection.promise().query("SELECT name, surname, email FROM users WHERE id = ?", [id]);
+    if(userToFind.length > 0){
+      const {name, surname, email} = userToFind[0];
+      res.status(200).json({name: name, surname: surname, email: email});
+    } else {
+      res.status(404).json({message: "Usuário não encontrado"})
+    }
+  }catch(error){
+    console.log(error)
+    res.status(500).json({message: "Erro interno do servidor"})
+
+  }
+
+})
 app.listen(port, () => {
   console.log(`Servidor backend rodando em http://localhost:${port}`);
 });
