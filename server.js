@@ -4,6 +4,10 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const cors = require("cors");
 
+//Variáveis para criptografia
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 const app = express();
 const port = process.env.PORT;
 
@@ -27,12 +31,20 @@ connection.connect((error) => {
 app.post("/register", async (req, res) => {
   try {
     const { username, email, password, name, surname } = req.body;
+    const cryptoPass = await bcrypt.hash(password, saltRounds);
+    //   if(err){  
+    //     res.status(500).json({message:"Erro ao gerar hash"})
+    //   } else {
+    //     return hash;
+    //   }
+    // })
+    console.log(cryptoPass);
     await connection
       .promise()
       .query("INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
         username,
         email,
-        password,
+        cryptoPass,
         name,
         surname
       ]);
