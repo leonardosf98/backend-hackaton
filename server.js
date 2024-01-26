@@ -29,13 +29,10 @@ app.post("/register", async (req, res) => {
     const { username, email, password, name, surname } = req.body;
     await connection
       .promise()
-      .query("INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
-        username,
-        email,
-        password,
-        name,
-        surname
-      ]);
+      .query(
+        "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
+        [username, email, password, name, surname]
+      );
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (error) {
     console.log(error);
@@ -43,19 +40,21 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/user", async (req, res)=>{
-  try{
+app.post("/user", async (req, res) => {
+  try {
     const id = req.body.id;
-    const [userToFind] = await connection.promise().query("SELECT name, surname, email FROM users WHERE id = ?", [id]);
-    if(userToFind.length > 0){
-      const {name, surname, email} = userToFind[0];
-      res.status(200).json({name: name, surname: surname, email: email});
-    } else {
-      res.status(404).json({message: "Usuário não encontrado"})
+    const [userToFind] = await connection
+      .promise()
+      .query("SELECT name, surname, email FROM users WHERE id = ?", [id]);
+    if (userToFind.length > 0) {
+      const { name, surname, email } = userToFind[0];
+      return res
+        .status(200)
+        .json({ name: name, surname: surname, email: email });
     }
-  }catch(error){
-    console.log(error)
-    res.status(500).json({message: "Erro interno do servidor"})
+    return res.status(404).json({ message: "Usuário não encontrado" });
+  } catch (error) {
+    return res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
 
