@@ -54,10 +54,9 @@ app.post("/register", async (req, res) => {
         "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
         [username, email, cryptoPass, name, surname]
       );
-    res.status(201).json({ message: "Usuário registrado com sucesso" });
+    return res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Erro ao registrar usuário" });
+    return res.status(500).json({ message: "Erro ao registrar usuário" });
   }
 });
 
