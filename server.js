@@ -28,6 +28,25 @@ connection.connect((error) => {
   }
 });
 
+app.post('/profile/edit', async (req, res)=>{
+  try{
+    const {id, username, email , name, surname } = req.body;
+    const emailToCheck = await connection.promise().query('SELECT COUNT(*) AS count FROM users WHERE email = ? AND id <> ?', [email, id]);
+    const userToCheck = await connection.promise().query('SELECT COUNT(*) AS count FROM users WHERE username = ? AND id <> ?', [username, id]);
+    if(emailToCheck.count > 0){
+      return res.status(422).json({message: "E-mail já cadastrado"})
+    }
+    if(userToCheck.count > 0){
+      return res.status(422).json({message: "Nome de usuário já cadastrado"});
+    }
+    return await connection.promise().query('UPDATE users SET name = ?, surname = ?, email = ?, username = ? ', [name, surname, email, username]);
+  }
+  catch (error){
+    res.status(500).json({ message: "Erro ao alterar dados do usuário",
+  error: error });
+  }
+});
+
 app.post("/register", async (req, res) => {
   try {
     const { username, email, password, name, surname } = req.body;
