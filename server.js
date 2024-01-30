@@ -31,21 +31,16 @@ connection.connect((error) => {
 app.post("/register", async (req, res) => {
   try {
     const { username, email, password, name, surname } = req.body;
-    const [userToCheck] = await connection
+    const [checkDuplicity] = await connection
       .promise()
-      .query("SELECT COUNT(id) AS userCount FROM USERS WHERE username = ?", [
-        username,
-      ]);
-    const [emailToCheck] = await connection
-      .promise()
-      .query("SELECT COUNT(id) AS emailCount FROM USERS WHERE email = ?", [
-        email,
-      ]);
-    if (userToCheck[0].userCount > 0) {
-      return res.status(422).json({ message: "Usuário já cadastrado" });
+      .query("SELECT COUNT(id) AS count, 'username' AS source FROM cadastro.users WHERE username = ? UNION SELECT COUNT(id) AS count, 'email' AS source FROM cadastro.users WHERE email = ? ", [
+        username, email
+      ]);   
+    if (checkDuplicity[0].count > 0) {
+      return res.status(409).json({ message: "Nome de usuário já cadastrado" });
     }
-    if (emailToCheck[0].emailCount > 0) {
-      return res.status(422).json({ message: "E-mail já cadastrado" });
+    if (checkDuplicity[1].count > 0) {
+      return res.status(409).json({ message: "E-mail já cadastrado" });
     }
     const cryptoPass = await bcrypt.hash(password, saltRounds);
     await connection
