@@ -13,13 +13,32 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(cors());
+
 const connection = mysql.createConnection({
   host: process.env.HOST_ADRESS,
   user: process.env.NAME,
   password: process.env.PASS,
   database: process.env.DB,
 });
-
+async function checkDuplicity(req, res, instructions){
+  const {email, username} = req.body;
+  const [userToCheck] = await connection
+      .promise()
+      .query("SELECT COUNT(id) AS userCount FROM USERS WHERE username = ?", [
+        username,
+      ]);
+    const [emailToCheck] = await connection
+      .promise()
+      .query("SELECT COUNT(id) AS emailCount FROM USERS WHERE email = ?", [
+        email]);
+        if (userToCheck[0].userCount > 0) {
+          return res.status(422).json({ message: "Usuário já cadastrado" });
+        }
+        if (emailToCheck[0].emailCount > 0) {
+          return res.status(422).json({ message: "E-mail já cadastrado" });
+        }
+        return await connection.promise().query(instructions);
+}
 connection.connect((error) => {
   if (error) {
     console.log("Erro ao conectar ao MySQL:", error);
@@ -29,31 +48,13 @@ connection.connect((error) => {
 });
 
 app.post("/register", async (req, res) => {
-  try {
     const { username, email, password, name, surname } = req.body;
-    const [checkDuplicity] = await connection
-      .promise()
-      .query("SELECT COUNT(id) AS count, 'username' AS source FROM cadastro.users WHERE username = ? UNION SELECT COUNT(id) AS count, 'email' AS source FROM cadastro.users WHERE email = ? ", [
-        username, email
-      ]);   
-    if (checkDuplicity[0].count > 0) {
-      return res.status(409).json({ message: "Nome de usuário já cadastrado" });
-    }
-    if (checkDuplicity[1].count > 0) {
-      return res.status(409).json({ message: "E-mail já cadastrado" });
-    }
     const cryptoPass = await bcrypt.hash(password, saltRounds);
-    await connection
-      .promise()
-      .query(
+    checkDuplicity(req, res,
         "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
         [username, email, cryptoPass, name, surname]
       );
-    return res.status(201).json({ message: "Usuário registrado com sucesso" });
-  } catch (error) {
-    return res.status(500).json({ message: "Erro ao registrar usuário" });
-  }
-});
+    });
 
 app.post("/user", async (req, res) => {
   try {
