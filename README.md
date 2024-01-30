@@ -79,9 +79,8 @@ URL: POST /register
 ```
 
 - Códigos de Erro:
-  - 422: Usuário ou e-mail já cadastrado
-  - 500: Erro ao registrar usuário 2. Recuperação de Informações do Usuário
-  Endpoint para recuperar informações de um usuário existente com base no ID.
+  - 409: Usuário ou e-mail já cadastrado
+  - 500: Erro ao registrar usuário 2. 
 
 ### Recuperação de Informações do Usuário
 
@@ -118,4 +117,4 @@ Para iniciar o servidor, execute o seguinte comando:
 ```bash
 npm start
 ```
-O servidor estará rodando em http://localhost:${porta}.
+O servidor estará rodando em http://localhost:${PORT}.
