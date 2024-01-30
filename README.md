@@ -58,6 +58,17 @@ Endpoint para registrar novos usuários. Os dados incluem username, email, passw
 
 URL: POST /register
 
+cURL:
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{
+  "username": "exemplo",
+  "email": "exemplo@email.com",
+  "password": "senha123",
+  "name": "Nome",
+  "surname": "Sobrenome"
+}' "http://localhost:${PORT}/register"
+```
+
 - Entrada:
 
 ```json
@@ -87,6 +98,13 @@ URL: POST /register
 Endpoint para recuperar informações de um usuário existente com base no ID.
 
 URL: POST /user
+
+cURL:
+```bash
+curl -X GET -H "Content-Type: application/json" -d '{
+  "id": 1
+}' "http://localhost:${PORT}/user"
+```
 
 - Entrada:
 
