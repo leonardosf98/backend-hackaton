@@ -67,9 +67,9 @@ app.post("/user", async (req, res) => {
 });
 app.post("/project/add", async (req, res)=>{
   try {
-    const {username, projectName, projectDescription, projectLink} = req.body;
-    await connection.promise().query("INSERT INTO cadastro.projects (username, project_name, project_description, project_link) VALUES (?, ?, ?, ?)", [username, projectName, projectDescription, projectLink ]) ; 
-    return res.status(200).json({message: "Projeto cadastrado com sucesso!"})
+    const {user_id, projectName, projectDescription, projectLink} = req.body;
+    await connection.promise().query("INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link) VALUES (?, ?, ?, ?)", [user_id, projectName, projectDescription, projectLink ]) ; 
+    return res.status(201).json({message: "Projeto cadastrado com sucesso!"})
   } catch (error) {
     return res.status(500).json({message: "Erro ao cadastrar projeto"});
   }
