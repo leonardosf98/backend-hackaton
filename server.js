@@ -13,6 +13,7 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(cors());
+
 const connection = mysql.createConnection({
   host: process.env.HOST_ADRESS,
   user: process.env.NAME,
@@ -29,19 +30,33 @@ connection.connect((error) => {
 });
 
 app.post("/register", async (req, res) => {
-  try {
-    const { username, email, password, name, surname } = req.body;
-    const cryptoPass = await bcrypt.hash(password, saltRounds);
-    await connection
-      .promise()
-      .query(
-        "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
-        [username, email, cryptoPass, name, surname]
-      );
-    res.status(201).json({ message: "Usuário registrado com sucesso" });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao registrar usuário" });
+  const { username, email, password, name, surname } = req.body;
+  const cryptoPass = await bcrypt.hash(password, saltRounds);
+  const [userToCheck] = await connection
+    .promise()
+    .query(
+      "SELECT COUNT(user_id) AS userCount FROM USERS WHERE user_username = ?",
+      [email]
+    );
+  const [emailToCheck] = await connection
+    .promise()
+    .query(
+      "SELECT COUNT(user_id) AS emailCount FROM USERS WHERE user_email = ?",
+      [email]
+    );
+  if (userToCheck[0].userCount > 0) {
+    return res.status(409).json({ message: "Usuário já cadastrado" });
   }
+  if (emailToCheck[0].emailCount > 0) {
+    return res.status(409).json({ message: "E-mail já cadastrado" });
+  }
+  await connection
+    .promise()
+    .query(
+      "INSERT INTO users (user_username, user_email, user_password, user_name, user_surname) VALUES (?, ?, ?, ?, ?)",
+      [username, email, cryptoPass, name, surname]
+    );
+  return res.status(201).json({ message: "Usuário cadastrado com sucesso" });
 });
 
 app.post("/user", async (req, res) => {
