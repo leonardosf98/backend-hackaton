@@ -5,7 +5,7 @@ const mysql = require("mysql2");
 const cors = require("cors");
 
 //Variáveis para criptografia
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 const app = express();
@@ -34,13 +34,10 @@ app.post("/register", async (req, res) => {
     const cryptoPass = await bcrypt.hash(password, saltRounds);
     await connection
       .promise()
-      .query("INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)", [
-        username,
-        email,
-        cryptoPass,
-        name,
-        surname
-      ]);
+      .query(
+        "INSERT INTO users (username, email, password, name, surname) VALUES (?, ?, ?, ?, ?)",
+        [username, email, cryptoPass, name, surname]
+      );
     res.status(201).json({ message: "Usuário registrado com sucesso" });
   } catch (error) {
     res.status(500).json({ message: "Erro ao registrar usuário" });
@@ -64,13 +61,30 @@ app.post("/user", async (req, res) => {
     return res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
-app.post("/project/add", async (req, res)=>{
+app.post("/project/add", async (req, res) => {
   try {
-    const {user_id, projectName, projectDescription, projectLink} = req.body;
-    await connection.promise().query("INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link) VALUES (?, ?, ?, ?)", [user_id, projectName, projectDescription, projectLink ]) ; 
-    return res.status(201).json({message: "Projeto cadastrado com sucesso!"})
+    const { userId, projectName, projectDescription, projectLink } = req.body;
+    const [result] = await connection
+      .promise()
+      .query(
+        "SELECT COUNT(user_id) AS userToCheck FROM cadastro.users WHERE user_id = ?",
+        [userId]
+      );
+    const [{ userToCheck }] = result;
+    if (userToCheck === 1) {
+      await connection
+        .promise()
+        .query(
+          "INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link) VALUES (?, ?, ?, ?)",
+          [userId, projectName, projectDescription, projectLink]
+        );
+      return res
+        .status(201)
+        .json({ message: "Projeto cadastrado com sucesso!" });
+    }
+    return res.status(404).json({ message: "Usuário não encontrado" });
   } catch (error) {
-    return res.status(500).json({message: "Erro ao cadastrar projeto"});
+    return res.status(500).json({ message: "Erro ao cadastrar projeto" });
   }
 });
 
