@@ -33,3 +33,16 @@ CREATE TABLE `tags` (
   `tag_id` int NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`tag_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- cadastro.project_tag_relationship definition
+
+-- cadastro.project_tag_relationship definition
+
+CREATE TABLE `project_tag_relationship` (
+  `tag_id` int NOT NULL,
+  `project_id` int NOT NULL,
+  PRIMARY KEY (`tag_id`,`project_id`),
+  KEY `project_tag_relationship_projects_FK` (`project_id`),
+  CONSTRAINT `project_tag_relationship_projects_FK` FOREIGN KEY (`project_id`) REFERENCES `projects` (`project_id`),
+  CONSTRAINT `project_tag_relationship_tags_FK` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
