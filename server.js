@@ -61,7 +61,7 @@ app.post("/user", async (req, res) => {
     return res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
-app.post("/project/add", async (req, res) => {
+app.post("/addproject", async (req, res) => {
   try {
     const { userId, projectName, projectDescription, projectLink } = req.body;
     const [result] = await connection
