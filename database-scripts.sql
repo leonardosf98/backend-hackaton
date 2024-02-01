@@ -36,8 +36,6 @@ CREATE TABLE `tags` (
 
 -- cadastro.project_tag_relationship definition
 
--- cadastro.project_tag_relationship definition
-
 CREATE TABLE `project_tag_relationship` (
   `tag_id` int NOT NULL,
   `project_id` int NOT NULL,
