@@ -83,7 +83,6 @@ app.post("/addproject", async (req, res) => {
         projectLink,
         tagsIds
       );
-      console.log(response);
       switch (response) {
         case 1:
           return res
@@ -97,7 +96,6 @@ app.post("/addproject", async (req, res) => {
     }
     return res.status(404).json({ message: "Usuário não encontrado" });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ message: "Erro ao cadastrar projeto" });
   }
 });
