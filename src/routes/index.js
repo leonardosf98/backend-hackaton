@@ -5,7 +5,7 @@ const projectControllers = require('../controllers/projectController');
 const routes = new Router();
 
 routes.post('/register', userControllers.register);
-routes.put('./edituserinfo', userControllers.editUserInfo);
+routes.put('/edituserinfo', userControllers.editUserInfo);
 routes.get('/getuserinfo', userControllers.getUserInfo);
 
 routes.post('/projectadd', projectControllers.addProject);

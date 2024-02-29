@@ -56,15 +56,18 @@ module.exports = {
           [user_id]
         );
       if (idResult[0].count === 0) {
-        return res.status(404).json({ message: 'Usuário não encontrado' });
+        return res.status(400).json({ message: 'Usuário não encontrado' });
       }
-      await connection
-        .promise()
-        .query(
-          'UPDATE cadastro.users SET user_name = ?, user_surname = ?, user_email = ?, user_username = ? WHERE user_id = ?',
-          [user_name, user_surname, user_email, user_username, user_id]
-        );
-      return res.status(201).json({ message: 'Dados atualizados com sucesso' });
+      await connection.promise().query(
+        `UPDATE 
+            cadastro.users 
+          SET 
+            user_name = ?, user_surname = ?, user_email = ?, user_username = ? 
+          WHERE 
+            user_id = ?`,
+        [user_name, user_surname, user_email, user_username, user_id]
+      );
+      return res.status(200).json({ message: 'Dados atualizados com sucesso' });
     } catch (error) {
       res.status(500).json({ message: 'Erro ao alterar dados do usuário' });
     }
