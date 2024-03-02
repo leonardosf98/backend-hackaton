@@ -5,25 +5,17 @@ const userModel = require('../model/userModel');
 
 module.exports = {
   async register(req, res) {
-    const { username, email, password, name, surname } = req.body;
+    const { email, password, name, surname } = req.body;
     const cryptoPass = await bcrypt.hash(password, saltRounds);
 
-    const [dataToCheck] = await userModel.checkDuplicity(email, username);
+    const [dataToCheck] = await userModel.checkDuplicity(email);
 
     if (dataToCheck[0].total > 0) {
-      return res
-        .status(409)
-        .json({ message: 'Usuário e/ou e-mail já cadastrado' });
+      return res.status(409).json({ message: 'E-mail já cadastrado' });
     }
 
     try {
-      const register = userModel.registerUser(
-        username,
-        email,
-        cryptoPass,
-        name,
-        surname
-      );
+      const register = userModel.registerUser(email, cryptoPass, name, surname);
     } catch (error) {
       return res.status(401).json({ message: 'Erro ao cadastrar usuário' });
     }
