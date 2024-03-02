@@ -15,11 +15,18 @@ module.exports = {
     }
 
     try {
-      const register = userModel.registerUser(email, cryptoPass, name, surname);
+      const register = await userModel.registerUser(
+        email,
+        cryptoPass,
+        name,
+        surname
+      );
+      return res
+        .status(201)
+        .json({ message: 'Usuário cadastrado com sucesso' });
     } catch (error) {
       return res.status(401).json({ message: 'Erro ao cadastrar usuário' });
     }
-    return res.status(201).json({ message: 'Usuário cadastrado com sucesso' });
   },
 
   async getUserInfo(req, res) {

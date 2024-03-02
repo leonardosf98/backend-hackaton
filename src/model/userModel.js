@@ -12,7 +12,7 @@ module.exports = {
     return connection
       .promise()
       .query(
-        'INSERT INTO users (user_username, user_email, user_password, user_name, user_surname) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO users ( user_email, user_password, user_name, user_surname) VALUES ( ?, ?, ?, ?)',
         [email, cryptoPass, name, surname]
       );
   },
