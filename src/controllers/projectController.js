@@ -13,6 +13,7 @@ module.exports = {
       } = req.body;
 
       const userToCheck = await projectModel.verifyById(userId);
+
       if (userToCheck === 1) {
         const projectId = await projectModel.insertProject(
           userId,
@@ -21,6 +22,7 @@ module.exports = {
           projectLink,
           projectImage
         );
+
         await projectModel.registerTag(projectId, projectTags);
 
         return res
@@ -29,6 +31,7 @@ module.exports = {
       }
       return res.status(404).json({ message: 'Usuário não encontrado' });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
     }
   },

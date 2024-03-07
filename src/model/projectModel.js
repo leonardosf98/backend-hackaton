@@ -25,18 +25,23 @@ module.exports = {
     projectImage
   ) {
     try {
-      connection
+      await connection
         .promise()
         .query(
           'INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link, project_image) VALUES (?, ?, ?, ?, ?)',
           [userId, projectName, projectDescription, projectLink, projectImage]
         );
+    } catch (error) {
+      throw error;
+    }
+
+    try {
       const [projectId] = await connection
         .promise()
         .query(
           'SELECT project_id FROM cadastro.projects ORDER BY project_id DESC LIMIT 1'
         );
-      console.log(projectId[0]);
+
       return projectId[0].project_id;
     } catch (error) {
       throw error;
