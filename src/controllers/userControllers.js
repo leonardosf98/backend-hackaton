@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const userModel = require('../model/userModel');
+const projectModel = require('../model/projectModel');
 
 module.exports = {
   async register(req, res) {
@@ -26,18 +27,18 @@ module.exports = {
 
   async getUserInfo(req, res) {
     try {
-      const id = req.body.id;
-      const [userToFind] = await connection
-        .promise()
-        .query('SELECT name, surname, email FROM users WHERE id = ?', [id]);
-      if (userToFind.length > 0) {
-        const { name, surname, email } = userToFind[0];
+      const { userId } = req.body;
+      const userToFind = await projectModel.verifyById(userId);
+      if (userToFind === 1) {
+        const [result] = await userModel.getInfo(userId);
+        console.log(result);
         return res
           .status(200)
-          .json({ name: name, surname: surname, email: email });
+          .json({ name: result[0].user_name, surname: result[0].user_surname });
       }
       return res.status(404).json({ message: 'Usuário não encontrado' });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ message: 'Erro interno do servidor' });
     }
   },

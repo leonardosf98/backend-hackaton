@@ -6,7 +6,7 @@ const routes = new Router();
 
 routes.post('/register', userControllers.register);
 routes.put('/edituserinfo', userControllers.editUserInfo);
-routes.get('/getuserinfo', userControllers.getUserInfo);
+routes.get('/user/info', userControllers.getUserInfo);
 
 routes.post('/projectadd', projectControllers.addProject);
 module.exports = routes;
