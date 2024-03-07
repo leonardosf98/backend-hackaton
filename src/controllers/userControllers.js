@@ -8,19 +8,14 @@ module.exports = {
     const { email, password, name, surname } = req.body;
     const cryptoPass = await bcrypt.hash(password, saltRounds);
 
-    const [dataToCheck] = await userModel.checkDuplicity(email);
+    const dataToCheck = await userModel.checkDuplicity(email);
 
-    if (dataToCheck[0].total > 0) {
+    if (dataToCheck === 1) {
       return res.status(409).json({ message: 'E-mail já cadastrado' });
     }
 
     try {
-      const register = await userModel.registerUser(
-        email,
-        cryptoPass,
-        name,
-        surname
-      );
+      await userModel.register(email, cryptoPass, name, surname);
       return res
         .status(201)
         .json({ message: 'Usuário cadastrado com sucesso' });
