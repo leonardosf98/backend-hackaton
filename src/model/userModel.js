@@ -1,14 +1,18 @@
 const connection = require('../database/connection');
 
 module.exports = {
-  checkDuplicity(email) {
-    return connection
+  async checkDuplicity(email) {
+    const [result] = await connection
       .promise()
       .query('SELECT COUNT(*) AS total FROM USERS WHERE user_email = ?', [
         email,
       ]);
+    if (result[0].total !== 0) {
+      return 1;
+    }
+    return 0;
   },
-  registerUser(email, cryptoPass, name, surname) {
+  register(email, cryptoPass, name, surname) {
     return connection
       .promise()
       .query(
