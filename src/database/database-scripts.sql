@@ -44,3 +44,8 @@ CREATE TABLE `project_tag_relationship` (
   CONSTRAINT `project_tag_relationship_projects_FK` FOREIGN KEY (`project_id`) REFERENCES `projects` (`project_id`),
   CONSTRAINT `project_tag_relationship_tags_FK` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ALTER TABLE `cadastro`.`projects` 
+CHANGE COLUMN `project_name` `project_name` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NOT NULL ,
+CHANGE COLUMN `project_link` `project_link` VARCHAR(2048) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NOT NULL ,
+CHANGE COLUMN `project_image` `project_image` LONGBLOB NOT NULL ;
