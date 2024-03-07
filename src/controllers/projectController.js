@@ -1,4 +1,4 @@
-const { projectModel } = require('../model/projectModel');
+const projectModel = require('../model/projectModel');
 
 module.exports = {
   async registerProject(req, res) {
@@ -11,16 +11,18 @@ module.exports = {
         projectTags,
         projectImage,
       } = req.body;
+
       const userToCheck = await projectModel.verifyById(userId);
-      console.log(userToCheck.total);
       if (userToCheck === 1) {
-        await insertProject(
+        const projectId = await projectModel.insertProject(
           userId,
           projectName,
           projectDescription,
           projectLink,
           projectImage
         );
+        console.log(projectId);
+        await projectModel.registerTag(projectId, projectTags);
 
         return res
           .status(201)
