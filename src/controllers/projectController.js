@@ -21,7 +21,6 @@ module.exports = {
           projectLink,
           projectImage
         );
-        console.log(projectId);
         await projectModel.registerTag(projectId, projectTags);
 
         return res
