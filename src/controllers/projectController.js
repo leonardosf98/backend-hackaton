@@ -1,4 +1,6 @@
 const connection = require('../database/connection');
+const projectModel = require('../model/projectModel');
+const userModel = require('../model/userModel');
 
 module.exports = {
   async addProject(req, res) {
@@ -25,6 +27,26 @@ module.exports = {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
+    }
+  },
+  async deleteProject(req, res) {
+    try {
+      const { projectId } = req.body;
+      const result = await projectModel.verifyId(
+        'projects',
+        'project_id',
+        projectId
+      );
+      if (result === 1) {
+        await projectModel.delete(projectId);
+        return res
+          .status(200)
+          .json({ message: 'Projeto deletado com sucesso' });
+      }
+      return res.status(404).json({ message: 'Projeto não encontrado' });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Erro ao deletar projeto' });
     }
   },
 };

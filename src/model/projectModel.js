@@ -17,6 +17,21 @@ module.exports = {
       throw error;
     }
   },
+  async verifyId(table, column, id) {
+    try {
+      const [result] = await connection.promise().query(
+        `SELECT 
+          COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
+        [id]
+      );
+      if (result[0].total === 1) {
+        return 1;
+      }
+      return 0;
+    } catch (error) {
+      throw error;
+    }
+  },
   async insertProject(
     userId,
     projectName,
@@ -56,5 +71,21 @@ module.exports = {
           [tag, projectId]
         );
     });
+  },
+  async delete(id) {
+    try {
+      await connection
+        .promise()
+        .query(
+          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          [id]
+        );
+      await connection
+        .promise()
+        .query('DELETE FROM cadastro.projects WHERE project_id = ?', [id]);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 };
