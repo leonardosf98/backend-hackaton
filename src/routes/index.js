@@ -9,4 +9,5 @@ routes.put('/edituserinfo', userControllers.editUserInfo);
 routes.get('/user/info', userControllers.getUserInfo);
 
 routes.post('/projectadd', projectControllers.addProject);
+routes.delete('/project/delete', projectControllers.deleteProject);
 module.exports = routes;
