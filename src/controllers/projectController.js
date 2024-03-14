@@ -12,7 +12,16 @@ module.exports = {
         projectImage,
       } = req.body;
 
-      const userToCheck = await projectModel.verifyById(userId);
+      const dataEnum = {
+        TABLE: 'users',
+        COLUMN: 'user_id',
+      };
+
+      const userToCheck = await projectModel.verifyId(
+        dataEnum.TABLE,
+        dataEnum.COLUMN,
+        userId
+      );
 
       if (userToCheck === 1) {
         await projectModel.insertProject(
@@ -33,12 +42,16 @@ module.exports = {
     }
   },
   async editProject(req, res) {
-    const projectToCheck = await projectModel.verifyId(
-      'projects',
-      'project_id',
-      req.body.projectId
+    const dataEnum = {
+      TABLE: 'projects',
+      COLUMN: 'project_id',
+    };
+    const result = await projectModel.verifyId(
+      dataEnum.TABLE,
+      dataEnum.COLUMN,
+      projectId
     );
-    if (projectToCheck === true) {
+    if (result === 1) {
       try {
         await projectModel.editProject(req);
         return res
@@ -53,9 +66,13 @@ module.exports = {
   async deleteProject(req, res) {
     try {
       const { projectId } = req.body;
+      const dataEnum = {
+        TABLE: 'projects',
+        COLUMN: 'project_id',
+      };
       const result = await projectModel.verifyId(
-        'projects',
-        'project_id',
+        dataEnum.TABLE,
+        dataEnum.COLUMN,
         projectId
       );
       if (result === 1) {

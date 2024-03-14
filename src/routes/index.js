@@ -10,8 +10,8 @@ routes.post('/project/add', projectController.registerProject);
 routes.put('/edituserinfo', userControllers.editUserInfo);
 routes.get('/user/info', userControllers.getUserInfo);
 
-routes.post('/project/add', projectControllers.addProject);
-routes.put('/project/edit', projectControllers.editProject);
-routes.delete('/project/delete', projectControllers.deleteProject);
+routes.post('/project/add', projectController.registerProject);
+routes.put('/project/edit', projectController.editProject);
+routes.delete('/project/delete', projectController.deleteProject);
 
 module.exports = routes;

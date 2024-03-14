@@ -1,4 +1,5 @@
 const connection = require('../database/connection');
+const moment = require('moment');
 
 module.exports = {
   async verifyById(id) {
@@ -21,10 +22,7 @@ module.exports = {
           COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
         [id]
       );
-      if (result.total === 1) {
-        return true;
-      }
-      return false;
+      return result.total;
     } catch (error) {
       throw error;
     }
@@ -35,16 +33,23 @@ module.exports = {
     projectDescription,
     projectLink,
     projectImage,
-    projectTags,
-    projectImage
+    projectTags
   ) {
     try {
+      const projectDate = moment().format('YYYY-MM-DD');
       await connection.promise().beginTransaction();
       await connection
         .promise()
         .query(
-          'INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link, project_image) VALUES (?, ?, ?, ?, ?)',
-          [userId, projectName, projectDescription, projectLink, projectImage]
+          'INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link, project_image, project_date) VALUES (?, ?, ?, ?, ?, ?)',
+          [
+            userId,
+            projectName,
+            projectDescription,
+            projectLink,
+            projectImage,
+            projectDate,
+          ]
         );
       const [[projectId]] = await connection
         .promise()
@@ -58,6 +63,7 @@ module.exports = {
       throw error;
     }
   },
+
   async registerTag(projectId, projectTags) {
     try {
       projectTags.forEach(async (tag) => {
