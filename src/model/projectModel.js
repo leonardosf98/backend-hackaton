@@ -14,13 +14,29 @@ module.exports = {
       throw error;
     }
   },
+  async verifyId(table, column, id) {
+    try {
+      const [[result]] = await connection.promise().query(
+        `SELECT 
+          COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
+        [id]
+      );
+      if (result.total === 1) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw error;
+    }
+  },
   async insertProject(
     userId,
     projectName,
     projectDescription,
     projectLink,
     projectImage,
-    projectTags
+    projectTags,
+    projectImage
   ) {
     try {
       await connection.promise().beginTransaction();
@@ -35,7 +51,6 @@ module.exports = {
         .query(
           'SELECT project_id FROM cadastro.projects ORDER BY project_id DESC LIMIT 1'
         );
-
       await this.registerTag(projectId.project_id, projectTags);
       await connection.promise().commit();
     } catch (error) {
@@ -44,17 +59,70 @@ module.exports = {
     }
   },
   async registerTag(projectId, projectTags) {
-    projectTags.forEach(async (tag) => {
-      if (tag < 1 || tag > 0 || tag.isNaN === true) {
-        return;
-      }
+    try {
+      projectTags.forEach(async (tag) => {
+        if (tag < 1 || tag > 0 || isNaN(tag) === true) {
+          return;
+        }
+        await connection
+          .promise()
+          .query(
+            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            [tag, projectId]
+          );
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async editProject(req) {
+    const {
+      projectId,
+      projectTags,
+      projectName,
+      projectImage,
+      projectLink,
+      projectDescription,
+    } = req.body;
+    try {
       await connection
         .promise()
         .query(
-          'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
-          [tag, projectId]
+          'UPDATE cadastro.projects SET project_name = ?, project_description = ?, project_link = ?, project_image = ? WHERE project_id = ?',
+          [
+            projectName,
+            projectDescription,
+            projectLink,
+            projectImage,
+            projectId,
+          ]
         );
-      await connection.promise().commit();
-    });
+      await connection
+        .promise()
+        .query(
+          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          [projectId]
+        );
+      projectTags.forEach(async (tag) => {
+        await connection
+          .promise()
+          .query(
+            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            [tag, projectId]
+          );
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+  async delete(id) {
+    try {
+      await connection
+        .promise()
+        .query('DELETE FROM cadastro.projects WHERE project_id = ?', [id]);
+    } catch (error) {
+      throw error;
+    }
   },
 };

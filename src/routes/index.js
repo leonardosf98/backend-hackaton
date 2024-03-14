@@ -8,6 +8,10 @@ const routes = new Router();
 routes.post('/register', userControllers.register);
 routes.post('/project/add', projectController.registerProject);
 routes.put('/edituserinfo', userControllers.editUserInfo);
-routes.get('/getuserinfo', userControllers.getUserInfo);
+routes.get('/user/info', userControllers.getUserInfo);
+
+routes.post('/project/add', projectControllers.addProject);
+routes.put('/project/edit', projectControllers.editProject);
+routes.delete('/project/delete', projectControllers.deleteProject);
 
 module.exports = routes;

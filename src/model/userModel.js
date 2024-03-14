@@ -20,4 +20,16 @@ module.exports = {
         [email, cryptoPass, name, surname]
       );
   },
+  getInfo(id) {
+    try {
+      return connection
+        .promise()
+        .query(
+          'SELECT user_name, user_surname FROM cadastro.users WHERE user_id = ?',
+          [id]
+        );
+    } catch (error) {
+      throw error;
+    }
+  },
 };
