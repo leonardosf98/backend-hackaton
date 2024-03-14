@@ -25,9 +25,9 @@ module.exports = {
         [id]
       );
       if (result.total === 1) {
-        return 1;
+        return true;
       }
-      return 0;
+      return false;
     } catch (error) {
       throw error;
     }
@@ -72,14 +72,49 @@ module.exports = {
         );
     });
   },
-  async delete(id) {
+
+  async editProject(req) {
+    const {
+      projectId,
+      projectTags,
+      projectName,
+      projectImage,
+      projectLink,
+      projectDescription,
+    } = req.body;
     try {
       await connection
         .promise()
         .query(
-          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
-          [id]
+          'UPDATE cadastro.projects SET project_name = ?, project_description = ?, project_link = ?, project_image = ? WHERE project_id = ?',
+          [
+            projectName,
+            projectDescription,
+            projectLink,
+            projectImage,
+            projectId,
+          ]
         );
+      await connection
+        .promise()
+        .query(
+          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          [projectId]
+        );
+      projectTags.forEach(async (tag) => {
+        await connection
+          .promise()
+          .query(
+            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            [tag, projectId]
+          );
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+  async delete(id) {
+    try {
       await connection
         .promise()
         .query('DELETE FROM cadastro.projects WHERE project_id = ?', [id]);
