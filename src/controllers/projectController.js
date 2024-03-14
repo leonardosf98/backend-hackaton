@@ -36,7 +36,7 @@ module.exports = {
     );
     if (projectToCheck === true) {
       try {
-        projectModel.editProject(req);
+        await projectModel.editProject(req);
         return res
           .status(200)
           .json({ message: 'Projeto alterado com sucesso' });
