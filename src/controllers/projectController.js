@@ -1,24 +1,28 @@
-const connection = require('../database/connection');
 const projectModel = require('../model/projectModel');
 
 module.exports = {
-  async addProject(req, res) {
+  async registerProject(req, res) {
     try {
-      const { userId, projectName, projectDescription, projectLink } = req.body;
-      const [result] = await connection
-        .promise()
-        .query(
-          'SELECT COUNT(user_id) AS userToCheck FROM cadastro.users WHERE user_id = ?',
-          [userId]
-        );
-      const [{ userToCheck }] = result;
+      const {
+        userId,
+        projectName,
+        projectDescription,
+        projectLink,
+        projectTags,
+        projectImage,
+      } = req.body;
+
+      const userToCheck = await projectModel.verifyById(userId);
+
       if (userToCheck === 1) {
-        await connection
-          .promise()
-          .query(
-            'INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link) VALUES (?, ?, ?, ?)',
-            [userId, projectName, projectDescription, projectLink]
-          );
+        await projectModel.insertProject(
+          userId,
+          projectName,
+          projectDescription,
+          projectLink,
+          projectImage,
+          projectTags
+        );
         return res
           .status(201)
           .json({ message: 'Projeto cadastrado com sucesso!' });
