@@ -3,16 +3,13 @@ const connection = require('../database/connection');
 module.exports = {
   async verifyById(id) {
     try {
-      const [result] = await connection
+      const [[result]] = await connection
         .promise()
         .query(
           'SELECT COUNT (*) AS total FROM cadastro.users WHERE user_id = ?',
           [id]
         );
-      if (result[0].total === 1) {
-        return 1;
-      }
-      return 0;
+      return result.total;
     } catch (error) {
       throw error;
     }
@@ -22,39 +19,42 @@ module.exports = {
     projectName,
     projectDescription,
     projectLink,
-    projectImage
+    projectImage,
+    projectTags
   ) {
     try {
+      await connection.promise().beginTransaction();
       await connection
         .promise()
         .query(
           'INSERT INTO cadastro.projects (user_id, project_name, project_description, project_link, project_image) VALUES (?, ?, ?, ?, ?)',
           [userId, projectName, projectDescription, projectLink, projectImage]
         );
-    } catch (error) {
-      throw error;
-    }
-
-    try {
-      const [projectId] = await connection
+      const [[projectId]] = await connection
         .promise()
         .query(
           'SELECT project_id FROM cadastro.projects ORDER BY project_id DESC LIMIT 1'
         );
 
-      return projectId[0].project_id;
+      await this.registerTag(projectId.project_id, projectTags);
+      await connection.promise().commit();
     } catch (error) {
+      await connection.promise().rollback();
       throw error;
     }
   },
-  registerTag(projectId, projectTags) {
+  async registerTag(projectId, projectTags) {
     projectTags.forEach(async (tag) => {
+      if (tag < 1 || tag > 0 || tag.isNaN === true) {
+        return;
+      }
       await connection
         .promise()
         .query(
           'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
           [tag, projectId]
         );
+      await connection.promise().commit();
     });
   },
 };
