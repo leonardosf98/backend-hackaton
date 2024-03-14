@@ -45,7 +45,6 @@ module.exports = {
       }
       return res.status(404).json({ message: 'Projeto não encontrado' });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ message: 'Erro ao deletar projeto' });
     }
   },
