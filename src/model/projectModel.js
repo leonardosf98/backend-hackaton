@@ -3,7 +3,7 @@ const connection = require('../database/connection');
 module.exports = {
   async verifyById(id) {
     try {
-      const [result] = await connection
+      const [[result]] = await connection
         .promise()
         .query(
           'SELECT COUNT (*) AS total FROM cadastro.users WHERE user_id = ?',
@@ -19,12 +19,12 @@ module.exports = {
   },
   async verifyId(table, column, id) {
     try {
-      const [result] = await connection.promise().query(
+      const [[result]] = await connection.promise().query(
         `SELECT 
           COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
         [id]
       );
-      if (result[0].total === 1) {
+      if (result.total === 1) {
         return true;
       }
       return false;
@@ -51,13 +51,13 @@ module.exports = {
     }
 
     try {
-      const [projectId] = await connection
+      const [[projectId]] = await connection
         .promise()
         .query(
           'SELECT project_id FROM cadastro.projects ORDER BY project_id DESC LIMIT 1'
         );
 
-      return projectId[0].project_id;
+      return projectId.project_id;
     } catch (error) {
       throw error;
     }
@@ -72,6 +72,7 @@ module.exports = {
         );
     });
   },
+
   async editProject(req) {
     const {
       projectId,
@@ -108,6 +109,15 @@ module.exports = {
             [tag, projectId]
           );
       });
+    } catch (error) {
+      throw error;
+    }
+  },
+  async delete(id) {
+    try {
+      await connection
+        .promise()
+        .query('DELETE FROM cadastro.projects WHERE project_id = ?', [id]);
     } catch (error) {
       throw error;
     }
