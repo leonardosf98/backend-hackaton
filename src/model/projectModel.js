@@ -17,6 +17,21 @@ module.exports = {
       throw error;
     }
   },
+  async verifyId(table, column, id) {
+    try {
+      const [result] = await connection.promise().query(
+        `SELECT 
+          COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
+        [id]
+      );
+      if (result[0].total === 1) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      throw error;
+    }
+  },
   async insertProject(
     userId,
     projectName,
@@ -56,5 +71,45 @@ module.exports = {
           [tag, projectId]
         );
     });
+  },
+  async editProject(req) {
+    const {
+      projectId,
+      projectTags,
+      projectName,
+      projectImage,
+      projectLink,
+      projectDescription,
+    } = req.body;
+    try {
+      await connection
+        .promise()
+        .query(
+          'UPDATE cadastro.projects SET project_name = ?, project_description = ?, project_link = ?, project_image = ? WHERE project_id = ?',
+          [
+            projectName,
+            projectDescription,
+            projectLink,
+            projectImage,
+            projectId,
+          ]
+        );
+      await connection
+        .promise()
+        .query(
+          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          [projectId]
+        );
+      projectTags.forEach(async (tag) => {
+        await connection
+          .promise()
+          .query(
+            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            [tag, projectId]
+          );
+      });
+    } catch (error) {
+      throw error;
+    }
   },
 };
