@@ -163,8 +163,9 @@ module.exports = {
     try {
       const offset = 6 * page;
       const projects = await connection.promise().query(
-        `SELECT p.project_name, p.project_description, p.project_link, p.project_image
+        `SELECT p.project_date, p.project_image, u.user_name, u.user_surname
         FROM cadastro.projects p
+        JOIN cadastro.users u ON p.user_id = u.user_id
         JOIN cadastro.project_tag_relationship ptr ON p.project_id = ptr.project_id
         JOIN cadastro.tags t ON ptr.tag_id = t.tag_id
         WHERE t.tag_name IN (?)
