@@ -12,7 +12,16 @@ module.exports = {
         projectImage,
       } = req.body;
 
-      const userToCheck = await projectModel.verifyById(userId);
+      const dataEnum = {
+        TABLE: 'users',
+        COLUMN: 'user_id',
+      };
+
+      const userToCheck = await projectModel.verifyId(
+        dataEnum.TABLE,
+        dataEnum.COLUMN,
+        userId
+      );
 
       if (userToCheck === 1) {
         await projectModel.insertProject(
@@ -32,13 +41,35 @@ module.exports = {
       return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
     }
   },
-  async editProject(req, res) {
-    const projectToCheck = await projectModel.verifyId(
-      'projects',
-      'project_id',
-      req.body.projectId
+  async getInfo(req, res) {
+    const { projectId } = req.body;
+    const dataEnum = {
+      TABLE: 'projects',
+      COLUMN: 'project_id',
+    };
+    const result = await projectModel.verifyId(
+      dataEnum.TABLE,
+      dataEnum.COLUMN,
+      projectId
     );
-    if (projectToCheck === true) {
+    if (result === 1) {
+      const [info] = await projectModel.getInfo(projectId);
+      return res.status(200).json({ message: info });
+    }
+    return res.status(404).json({ message: 'Projeto não encontrado' });
+  },
+  async editProject(req, res) {
+    const { projectId } = req.body;
+    const dataEnum = {
+      TABLE: 'projects',
+      COLUMN: 'project_id',
+    };
+    const result = await projectModel.verifyId(
+      dataEnum.TABLE,
+      dataEnum.COLUMN,
+      projectId
+    );
+    if (result === 1) {
       try {
         await projectModel.editProject(req);
         return res
@@ -53,9 +84,13 @@ module.exports = {
   async deleteProject(req, res) {
     try {
       const { projectId } = req.body;
+      const dataEnum = {
+        TABLE: 'projects',
+        COLUMN: 'project_id',
+      };
       const result = await projectModel.verifyId(
-        'projects',
-        'project_id',
+        dataEnum.TABLE,
+        dataEnum.COLUMN,
         projectId
       );
       if (result === 1) {
@@ -67,6 +102,15 @@ module.exports = {
       return res.status(404).json({ message: 'Projeto não encontrado' });
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao deletar projeto' });
+    }
+  },
+  async getProjectFromTag(req, res) {
+    const { tags, page } = req.body;
+    try {
+      const [projects] = await projectModel.getProjectByTag(tags, page);
+      return res.status(201).json({ message: projects });
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao requerir projetos' });
     }
   },
 };
