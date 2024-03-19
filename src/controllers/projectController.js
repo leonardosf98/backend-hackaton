@@ -41,7 +41,25 @@ module.exports = {
       return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
     }
   },
+  async getInfo(req, res) {
+    const { projectId } = req.body;
+    const dataEnum = {
+      TABLE: 'projects',
+      COLUMN: 'project_id',
+    };
+    const result = await projectModel.verifyId(
+      dataEnum.TABLE,
+      dataEnum.COLUMN,
+      projectId
+    );
+    if (result === 1) {
+      const [info] = await projectModel.getInfo(projectId);
+      return res.status(200).json({ message: info });
+    }
+    return res.status(404).json({ message: 'Projeto não encontrado' });
+  },
   async editProject(req, res) {
+    const { projectId } = req.body;
     const dataEnum = {
       TABLE: 'projects',
       COLUMN: 'project_id',
@@ -84,6 +102,15 @@ module.exports = {
       return res.status(404).json({ message: 'Projeto não encontrado' });
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao deletar projeto' });
+    }
+  },
+  async getProjectFromTag(req, res) {
+    const { tags, page } = req.body;
+    try {
+      const [projects] = await projectModel.getProjectByTag(tags, page);
+      return res.status(201).json({ message: projects });
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao requerir projetos' });
     }
   },
 };
