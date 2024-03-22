@@ -1,4 +1,4 @@
-const projectModel = require('../model/projectModel');
+const projectModel = require("../model/projectModel");
 
 module.exports = {
   async registerProject(req, res) {
@@ -12,18 +12,9 @@ module.exports = {
         projectImage,
       } = req.body;
 
-      const dataEnum = {
-        TABLE: 'users',
-        COLUMN: 'user_id',
-      };
+      const userToCheck = await projectModel.verifyUserExistence(userId);
 
-      const userToCheck = await projectModel.verifyId(
-        dataEnum.TABLE,
-        dataEnum.COLUMN,
-        userId
-      );
-
-      if (userToCheck === 1) {
+      if (userToCheck) {
         await projectModel.insertProject(
           userId,
           projectName,
@@ -34,83 +25,59 @@ module.exports = {
         );
         return res
           .status(201)
-          .json({ message: 'Projeto cadastrado com sucesso!' });
+          .json({ message: "Projeto cadastrado com sucesso!" });
       }
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: "Usuário não encontrado" });
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
+      return res.status(500).json({ message: "Erro ao cadastrar projeto" });
     }
   },
   async getInfo(req, res) {
-    const { projectId } = req.body;
-    const dataEnum = {
-      TABLE: 'projects',
-      COLUMN: 'project_id',
-    };
-    const result = await projectModel.verifyId(
-      dataEnum.TABLE,
-      dataEnum.COLUMN,
-      projectId
-    );
-    if (result === 1) {
+    const { id } = req.params;
+    const result = await projectModel.verifyProjectExistence(projectId);
+    if (result) {
       const [info] = await projectModel.getInfo(projectId);
       return res.status(200).json({ message: info });
     }
-    return res.status(404).json({ message: 'Projeto não encontrado' });
+    return res.status(404).json({ message: "Projeto não encontrado" });
   },
   async editProject(req, res) {
     const { projectId } = req.body;
-    const dataEnum = {
-      TABLE: 'projects',
-      COLUMN: 'project_id',
-    };
-    const result = await projectModel.verifyId(
-      dataEnum.TABLE,
-      dataEnum.COLUMN,
-      projectId
-    );
-    if (result === 1) {
+    const result = await projectModel.verifyProjectExistence(projectId);
+    if (result) {
       try {
         await projectModel.editProject(req);
         return res
           .status(200)
-          .json({ message: 'Projeto alterado com sucesso' });
+          .json({ message: "Projeto alterado com sucesso" });
       } catch (error) {
-        return res.status(500).json({ message: 'Erro ao cadastrar projeto' });
+        return res.status(500).json({ message: "Erro ao cadastrar projeto" });
       }
     }
-    return res.status(404).json({ message: 'Projeto não encontrado' });
+    return res.status(404).json({ message: "Projeto não encontrado" });
   },
   async deleteProject(req, res) {
     try {
       const { projectId } = req.body;
-      const dataEnum = {
-        TABLE: 'projects',
-        COLUMN: 'project_id',
-      };
-      const result = await projectModel.verifyId(
-        dataEnum.TABLE,
-        dataEnum.COLUMN,
-        projectId
-      );
-      if (result === 1) {
+      const result = await projectModel.verifyProjectExistence(projectId);
+      if (result) {
         await projectModel.delete(projectId);
         return res
           .status(200)
-          .json({ message: 'Projeto deletado com sucesso' });
+          .json({ message: "Projeto deletado com sucesso" });
       }
-      return res.status(404).json({ message: 'Projeto não encontrado' });
+      return res.status(404).json({ message: "Projeto não encontrado" });
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao deletar projeto' });
+      return res.status(500).json({ message: "Erro ao deletar projeto" });
     }
   },
   async getProjectFromTag(req, res) {
-    const { tags, page } = req.body;
+    const { tags, page, limit } = req.body;
     try {
-      const [projects] = await projectModel.getProjectByTag(tags, page);
+      const [projects] = await projectModel.getProjectsByTag(tags, page, limit);
       return res.status(201).json({ message: projects });
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao requerir projetos' });
+      return res.status(500).json({ message: "Erro ao requerir projetos" });
     }
   },
 };

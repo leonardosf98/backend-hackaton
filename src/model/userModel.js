@@ -1,11 +1,11 @@
-const connection = require('../database/connection');
+const connection = require("../database/connection");
 
 module.exports = {
   async checkDuplicity(email) {
     const [[result]] = await connection
       .promise()
       .query(
-        'SELECT COUNT(*) AS total FROM cadastro.users WHERE user_email = ?',
+        "SELECT COUNT(*) AS total FROM cadastro.users WHERE user_email = ?",
         [email]
       );
     return result.total;
@@ -14,7 +14,7 @@ module.exports = {
     return connection
       .promise()
       .query(
-        'INSERT INTO users ( user_email, user_password, user_name, user_surname) VALUES ( ?, ?, ?, ?)',
+        "INSERT INTO users ( user_email, user_password, user_name, user_surname) VALUES ( ?, ?, ?, ?)",
         [email, cryptoPass, name, surname]
       );
   },
@@ -23,7 +23,7 @@ module.exports = {
       return connection
         .promise()
         .query(
-          'SELECT user_name, user_surname FROM cadastro.users WHERE user_id = ?',
+          "SELECT user_name, user_surname FROM cadastro.users WHERE user_id = ?",
           [id]
         );
     } catch (error) {

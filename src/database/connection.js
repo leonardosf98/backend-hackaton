@@ -1,19 +1,25 @@
-require('dotenv').config();
-const mysql = require('mysql2');
+require("dotenv").config();
+const { Connector } = require("@google-cloud/cloud-sql-connector");
+const mysql = require("mysql2/promise");
 
-const connection = mysql.createConnection({
-  host: process.env.HOST_ADRESS,
-  user: process.env.NAME,
-  password: process.env.PASS,
-  database: process.env.DB,
+async function main() {
+  const connector = new Connector();
+  console.log(process.env.HOST);
+  const clientOptions = await connector.getOptions({
+    instanceConnectionName: process.env.HOST,
+    ipType: "PUBLIC",
+  });
+  const pool = await mysql.createPool({
+    ...clientOptions,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DB,
+  });
+  const conn = await pool.getConnection();
+  const [result] = await conn.query(`SELECT NOW();`);
+  console.table(result);
+  await pool.end();
+}
+main().catch((error) => {
+  console.log(error);
 });
-
-connection.connect((error) => {
-  if (error) {
-    console.log('Erro ao conectar ao MySQL:', error);
-  } else {
-    console.log('conectado ao MySQL');
-  }
-});
-
-module.exports = connection;

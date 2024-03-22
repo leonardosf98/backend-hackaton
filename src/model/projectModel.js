@@ -1,12 +1,23 @@
-const connection = require('../database/connection');
-const moment = require('moment');
+const connection = require("../database/connection");
 
 module.exports = {
-  async verifyId(table, column, id) {
+  async verifyProjectExistence(id) {
     try {
       const [[result]] = await connection.promise().query(
         `SELECT 
-          COUNT (*) AS total FROM cadastro.${table} WHERE ${column} = ?`,
+          COUNT (*) AS total FROM cadastro.projects WHERE project_id = ?`,
+        [id]
+      );
+      return result.total;
+    } catch (error) {
+      throw error;
+    }
+  },
+  async verifyUserExistence(id) {
+    try {
+      const [[result]] = await connection.promise().query(
+        `SELECT 
+            COUNT (*) AS total FROM cadastro.users WHERE user_id = ?`,
         [id]
       );
       return result.total;
@@ -34,7 +45,7 @@ module.exports = {
   JOIN 
       cadastro.users u ON p.user_id = u.user_id
   WHERE 
-      p.project_id = 4
+      p.project_id = ?
   GROUP BY 
       p.project_id;  
     `,
@@ -50,7 +61,11 @@ module.exports = {
     projectTags
   ) {
     try {
-      const projectDate = moment().format('YYYY-MM-DD');
+      const rawDate = new Date();
+      const projectDate = rawDate
+        .toISOString()
+        .split("T")[0]
+        .replaceAll("-", "/");
       await connection.promise().beginTransaction();
       await connection.promise().query(
         `INSERT INTO 
@@ -92,7 +107,7 @@ module.exports = {
         await connection
           .promise()
           .query(
-            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            "INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)",
             [tag, projectId]
           );
       });
@@ -114,7 +129,7 @@ module.exports = {
       await connection
         .promise()
         .query(
-          'UPDATE cadastro.projects SET project_name = ?, project_description = ?, project_link = ?, project_image = ? WHERE project_id = ?',
+          "UPDATE cadastro.projects SET project_name = ?, project_description = ?, project_link = ?, project_image = ? WHERE project_id = ?",
           [
             projectName,
             projectDescription,
@@ -126,14 +141,14 @@ module.exports = {
       await connection
         .promise()
         .query(
-          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          "DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?",
           [projectId]
         );
       projectTags.forEach(async (tag) => {
         await connection
           .promise()
           .query(
-            'INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)',
+            "INSERT INTO cadastro.project_tag_relationship (tag_id, project_id) VALUES (?,?)",
             [tag, projectId]
           );
       });
@@ -147,19 +162,19 @@ module.exports = {
       await connection
         .promise()
         .query(
-          'DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?',
+          "DELETE FROM cadastro.project_tag_relationship WHERE project_id = ?",
           [id]
         );
       await connection
         .promise()
-        .query('DELETE FROM cadastro.projects WHERE project_id = ?', [id]);
+        .query("DELETE FROM cadastro.projects WHERE project_id = ?", [id]);
       await connection.promise().commit();
     } catch (error) {
       await connection.promise().rollback();
       throw error;
     }
   },
-  async getProjectByTag(tags, page) {
+  async getProjectsByTag(tags, page, limit) {
     try {
       const offset = 6 * page;
       const projects = await connection.promise().query(
@@ -170,9 +185,9 @@ module.exports = {
         JOIN cadastro.tags t ON ptr.tag_id = t.tag_id
         WHERE t.tag_name IN (?)
         ORDER BY p.project_id
-        LIMIT 6 OFFSET ?;
+        LIMIT ? OFFSET ?;
         `,
-        [tags, offset]
+        [tags, limit, offset]
       );
       return projects;
     } catch (error) {

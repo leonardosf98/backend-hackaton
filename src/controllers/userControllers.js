@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-const userModel = require('../model/userModel');
-const projectModel = require('../model/projectModel');
+const userModel = require("../model/userModel");
+const projectModel = require("../model/projectModel");
 
 module.exports = {
   async register(req, res) {
@@ -11,17 +11,16 @@ module.exports = {
 
     const dataToCheck = await userModel.checkDuplicity(email);
 
-    if (dataToCheck === 1) {
-      return res.status(409).json({ message: 'E-mail já cadastrado' });
+    if (dataToCheck) {
+      return res.status(409).json({ message: "E-mail já cadastrado" });
     }
-
     try {
       await userModel.register(email, cryptoPass, name, surname);
       return res
         .status(201)
-        .json({ message: 'Usuário cadastrado com sucesso' });
+        .json({ message: "Usuário cadastrado com sucesso" });
     } catch (error) {
-      return res.status(401).json({ message: 'Erro ao cadastrar usuário' });
+      return res.status(401).json({ message: "Erro ao cadastrar usuário" });
     }
   },
 
@@ -29,17 +28,17 @@ module.exports = {
     try {
       const { userId } = req.body;
       const userToFind = await projectModel.verifyById(userId);
-      if (userToFind === 1) {
+      if (userToFind) {
         const [result] = await userModel.getInfo(userId);
         console.log(result);
         return res
           .status(200)
           .json({ name: result[0].user_name, surname: result[0].user_surname });
       }
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: "Usuário não encontrado" });
     } catch (error) {
       console.log(error);
-      return res.status(500).json({ message: 'Erro interno do servidor' });
+      return res.status(500).json({ message: "Erro interno do servidor" });
     }
   },
   async editUserInfo(req, res) {
@@ -49,11 +48,11 @@ module.exports = {
       const [idResult] = await connection
         .promise()
         .query(
-          'SELECT COUNT(user_id) AS count FROM cadastro.users WHERE user_id = ?',
+          "SELECT COUNT(user_id) AS count FROM cadastro.users WHERE user_id = ?",
           [user_id]
         );
-      if (idResult[0].count === 0) {
-        return res.status(400).json({ message: 'Usuário não encontrado' });
+      if (!idResult[0].count) {
+        return res.status(400).json({ message: "Usuário não encontrado" });
       }
       await connection.promise().query(
         `UPDATE 
@@ -64,9 +63,9 @@ module.exports = {
             user_id = ?`,
         [user_name, user_surname, user_email, user_username, user_id]
       );
-      return res.status(200).json({ message: 'Dados atualizados com sucesso' });
+      return res.status(200).json({ message: "Dados atualizados com sucesso" });
     } catch (error) {
-      res.status(500).json({ message: 'Erro ao alterar dados do usuário' });
+      res.status(500).json({ message: "Erro ao alterar dados do usuário" });
     }
   },
 };
